@@ -139,6 +139,31 @@ select{flex:1;min-width:0;height:44px;background:#0f1114;color:var(--txt);border
 #resume{position:fixed;inset:0;z-index:70;background:#000c;display:flex;align-items:center;justify-content:center}
 #resume.hidden{display:none}
 
+
+.mic.muted{border-color:var(--rec);background:#3a1515;color:#ffb4b4}
+.mic.clip{border-color:var(--rec);animation:blink .3s steps(2) 4}
+.bpmbox .sub{display:flex;align-items:center;gap:6px;margin-top:4px;font-size:11px;color:#9fe8bd}
+.bpmbox .dots{margin-top:0}
+.card.muted .ringwrap{opacity:.45}
+.card.muted .st::after{content:' · 음소거';color:var(--rec)}
+.row{grid-template-columns:1fr 1fr 1fr!important}
+.sb{height:50px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.1}
+.sb i{font-style:normal;font-size:17px}
+.sb small{font-size:11px;font-weight:800}
+.sb.on{background:#5a1f1f;border-color:var(--rec);color:#ffd0d0}
+#undo-toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:#111316;border:1px solid var(--line);padding:10px 12px 10px 18px;border-radius:14px;font-size:15px;z-index:85;box-shadow:0 8px 24px #000c}
+#undo-toast.hidden{display:none}
+.tut{text-align:left}
+.tut .stepn{font-size:13px;color:var(--acc);font-weight:900;letter-spacing:.1em}
+.tut .big{font-size:22px;font-weight:900;margin:8px 0 10px}
+.tut p{font-size:16px;line-height:1.7;color:#d3d7dc;margin:0 0 10px}
+.tut .nav{display:flex;gap:10px;margin-top:18px}
+.tut .nav .btn{flex:1;height:52px}
+.pips{display:flex;gap:6px;justify-content:center;margin-top:14px}
+.pips i{width:8px;height:8px;border-radius:50%;background:#333840}
+.pips i.on{background:var(--acc)}
+.seg.many button{font-size:15px}
+
 /* narrow / portrait tweaks */
 @media (max-width:760px){.logo.small{display:none}.mic .bar{width:40px}.tb{padding:0 10px}}
 @media (max-width:560px){.tracks{grid-template-columns:repeat(5,minmax(118px,1fr));overflow-x:auto}.sb{font-size:12px}.tb .lbl{display:none}}
@@ -160,8 +185,8 @@ select{flex:1;min-width:0;height:44px;background:#0f1114;color:var(--txt);border
 <div class="app">
   <div class="top">
     <div class="logo small">LOOP<b>·</b>5</div>
-    <button class="mic" id="mic" title="마이크 입력"><span id="micico">🎤</span><span class="bar"><i id="micbar"></i></span></button>
-    <button class="bpmbox" id="bpmbox"><div class="n"><span id="bpm">120</span><small>BPM</small></div><div class="dots" id="dots"><i></i><i></i><i></i><i></i></div></button>
+    <button class="mic" id="mic" title="누르면 마이크 켜기/끄기"><span id="micico">🎤</span><span class="bar"><i id="micbar"></i></span></button>
+    <button class="bpmbox" id="bpmbox"><div class="n"><span id="bpm">100</span><small>BPM</small></div><div class="sub"><span class="dots" id="dots"><i></i><i></i><i></i><i></i></span><span id="barinfo">8마디</span></div></button>
     <button class="tb" id="b-rhy">🥁<span class="lbl">리듬</span></button>
     <div class="sp"></div>
     <button class="tb go" id="b-all">▶<span class="lbl">전체 재생</span></button>
@@ -173,15 +198,20 @@ select{flex:1;min-width:0;height:44px;background:#0f1114;color:var(--txt);border
 
 <!-- tempo / rhythm sheet -->
 <div class="ov hidden" id="ov-tempo"><div class="sheet">
-  <h2>템포 · 리듬<button class="btn" data-close>닫기</button></h2>
-  <div class="sr"><label>템포</label><div class="ctl big3"><button class="btn" id="t-dn">−</button><div style="flex:1.2;text-align:center;font-size:28px;font-weight:900;font-family:ui-monospace,monospace" id="t-val">120</div><button class="btn" id="t-up">+</button></div></div>
-  <div class="sr"><label>탭 템포</label><div class="ctl"><button class="btn" id="t-tap" style="flex:1;height:56px">박자에 맞춰 여러 번 탭</button></div></div>
+  <h2>템포 · 루프 길이<button class="btn" data-close>닫기</button></h2>
   <p class="note" id="t-lock"></p>
+  <div class="sr"><label>녹음 방식</label><div class="ctl seg" id="t-mode"><button data-v="fixed">마디 고정 (추천)</button><button data-v="free">자유</button></div></div>
+  <p class="note" id="t-modenote"></p>
+  <div class="sr" id="sr-bars"><label>루프 길이</label><div class="ctl seg many" id="t-bars"><button data-v="1">1</button><button data-v="2">2</button><button data-v="4">4</button><button data-v="8">8</button><button data-v="16">16</button></div><span class="val">마디</span></div>
+  <div class="sr"><label>템포</label><div class="ctl big3"><button class="btn" id="t-dn">−</button><div style="flex:1.2;text-align:center;font-size:28px;font-weight:900;font-family:ui-monospace,monospace" id="t-val">100</div><button class="btn" id="t-up">+</button></div></div>
+  <div class="sr"><label>탭 템포</label><div class="ctl"><button class="btn" id="t-tap" style="flex:1;height:56px">박자에 맞춰 여러 번 탭</button></div></div>
+  <p class="note">빠르기 참고: 발라드 70–90 · 힙합 85–100 · 팝/록 100–130 · 댄스 120–128</p>
+  <div class="sr"><label>메트로놈</label><div class="ctl seg" id="t-click"><button data-v="off">끄기</button><button data-v="rec">녹음할 때</button><button data-v="always">항상</button></div></div>
+  <p class="note">딸깍 소리는 이어폰(출력)으로만 나가고 녹음에는 들어가지 않습니다. 녹음 시작 전 4박 카운트는 항상 나옵니다.</p>
+  <div class="sec">리듬 (드럼)</div>
   <div class="sr"><label>리듬</label><div class="ctl seg" id="t-rhy"><button data-v="0">끄기</button><button data-v="1">켜기</button></div></div>
   <div class="sr"><label>패턴</label><div class="ctl"><select id="t-pat"><option value="0">록</option><option value="1">팝</option><option value="2">힙합</option><option value="3">하우스</option><option value="4">펑크</option><option value="5">메트로놈(딸깍)</option></select></div></div>
   <div class="sr"><label>리듬 볼륨</label><div class="ctl"><input type="range" id="t-rlev" min="0" max="1.2" step="0.01" value="0.6"><span class="val" id="t-rlevv"></span></div></div>
-  <div class="sr"><label>마디 맞춤</label><div class="ctl seg" id="t-q"><button data-v="0">끄기</button><button data-v="1">켜기</button></div></div>
-  <p class="note">마디 맞춤을 켜면 녹음 시작·끝이 박자에 맞게 자동으로 정리되고, 첫 녹음 전에 1마디(4박) 카운트가 나옵니다. 리듬을 켜 두면 자동으로 박자에 맞춰집니다.</p>
 </div></div>
 
 <!-- per-track sheet -->
@@ -204,7 +234,8 @@ select{flex:1;min-width:0;height:44px;background:#0f1114;color:var(--txt);border
   <div class="sec">소리 점검</div>
   <div class="diag" id="diag">…</div>
   <div class="sr"><label>소리 테스트</label><div class="ctl"><button class="btn prim" id="s-beep" style="flex:1">🔊 띵 소리 내기</button></div></div>
-  <div class="sr"><label>내 소리 듣기</label><div class="ctl seg" id="s-mon"><button data-v="0">끄기</button><button data-v="1">켜기 (이어폰)</button></div></div>
+  <div class="sr"><label>내 소리 듣기</label><div class="ctl seg" id="s-mon"><button data-v="always">항상</button><button data-v="rec">녹음할 때만</button><button data-v="off">끄기</button></div></div>
+  <p class="note">이어폰일 때 "항상"을 추천합니다. 폰 스피커로 들으면 하울링이 생기니 "끄기"로 두세요. 위쪽 🎤 버튼을 누르면 마이크 자체를 껐다 켤 수 있습니다.</p>
   <div class="sr"><label>마이크 크기</label><div class="ctl"><input type="range" id="s-gain" min="0" max="4" step="0.01" value="1"><span class="val" id="s-gainv"></span></div></div>
   <div class="sr"><label>마이크</label><div class="ctl"><select id="s-in"></select></div></div>
   <div class="sr" id="sr-out"><label>소리 출력</label><div class="ctl"><select id="s-out"></select></div></div>
@@ -222,6 +253,8 @@ select{flex:1;min-width:0;height:44px;background:#0f1114;color:var(--txt);border
   <div class="sec">전체</div>
   <div class="sr"><label>믹스 저장</label><div class="ctl"><button class="btn" id="s-exp" style="flex:1">⤓ 전체 믹스 WAV 저장</button></div></div>
   <div class="sr"><label>전부 지우기</label><div class="ctl"><button class="btn danger hold" id="s-clrall" style="flex:1">🗑 꾹 눌러서 모든 트랙 삭제</button></div></div>
+  <p class="note">녹음은 이 폰에 자동 저장되어, 다시 열면 그대로 불러옵니다.</p>
+  <div class="sr"><label>사용 가이드</label><div class="ctl"><button class="btn" id="s-tut" style="flex:1">📖 처음 사용 가이드 다시 보기</button></div></div>
   <div class="sr"><label>화면</label><div class="ctl"><button class="btn" id="s-fs" style="flex:1">⛶ 전체화면 켜기/끄기</button></div></div>
 
   <div class="sec">사용법</div>
@@ -230,11 +263,13 @@ select{flex:1;min-width:0;height:44px;background:#0f1114;color:var(--txt);border
   · 처음 녹음한 트랙 길이가 기본 루프가 되고, 나머지 트랙은 그 길이(또는 2배·3배)에 자동으로 맞춰집니다.<br>
   · 재생 중인 트랙을 누르면 그 위에 <b>겹쳐 녹음</b>, 다시 누르면 끝. 마음에 안 들면 <b>↶ 취소</b>.<br>
   · <b>■ 정지</b>는 그 트랙만 멈춤, 위쪽 <b>전체 재생/정지</b>는 모든 트랙.<br>
-  · <b>🗑 지우기</b>는 실수 방지를 위해 꾹 눌러야 지워집니다. <b>⋯</b>에서 볼륨·효과·거꾸로 재생.<br>
+  · <b>🗑 삭제</b>는 꾹 눌러야 지워지고, 지운 직후 <b>되살리기</b>가 가능합니다. <b>🔇</b>는 박자를 유지한 채 소리만 끕니다. <b>⋯</b>에서 볼륨·효과·거꾸로 재생.<br>
   · 키보드: 1–5 트랙 버튼, Q–T 정지, A–G 취소, 스페이스 전체 재생/정지.
   </p>
 </div></div>
 
+<div class="ov hidden" id="ov-tut"><div class="sheet tut" id="tut"></div></div>
+<div id="undo-toast" class="hidden"><span id="undo-msg">트랙을 지웠습니다</span><button class="btn prim" id="undo-btn">↶ 되살리기</button></div>
 <div id="resume" class="hidden"><button class="choice rec" id="resume-btn">🔊 오디오 다시 켜기<small>브라우저가 소리를 멈췄습니다. 눌러서 다시 시작</small></button></div>
 <div id="toast"></div>
 
@@ -256,9 +291,11 @@ class LooperEngine extends AudioWorkletProcessor {
     this.sr = sampleRate;
     this.tr = [];
     for (let i = 0; i < NT; i++) this.tr.push(this.blank());
-    this.masterLen = 0; this.t0 = 0; this.bpm = 120;
+    this.masterLen = 0; this.t0 = 0; this.bpm = 100;
     this.lat = 0; this.quant = false; this.recEnd = 'play';
+    this.fixedBars = 8; this.click = 'rec';
     this.rOn = false; this.rPat = 0; this.countIn = 0; this.lastTrig = -1e12;
+    this.trash = []; this.group = 0;
     this.RN = 1 << 17;
     this.ring = new Float32Array(this.RN);
     this.q = [];
@@ -272,11 +309,13 @@ class LooperEngine extends AudioWorkletProcessor {
       rev: false, recW: null, dubW: null, next: null, g: 0, peak: 0 };
   }
   barLen() { return this.sr * 240 / this.bpm; }
+  useQ() { return this.quant || this.rOn || this.fixedBars > 0; }
   running(f) {
     if (this.rOn || f < this.countIn) return true;
     for (const t of this.tr) if (t.playing || (t.state === 'rec' && t.recW)) return true;
     return false;
   }
+  recording() { for (const t of this.tr) if ((t.state === 'rec' && t.recW) || t.state === 'dub') return true; return false; }
   qStart(f) {
     const B = this.barLen();
     const k = Math.floor((f - this.t0) / B);
@@ -294,9 +333,11 @@ class LooperEngine extends AudioWorkletProcessor {
     for (let b = 1; b <= 64; b++) { const bpm = 240 * b * sr / len; if (bpm >= 70) return bpm; }
     return 120;
   }
+  // move the whole timeline so that t0 lands on f, keeping every track's relative phase
   realign(f) {
+    const d = f - this.t0;
     this.t0 = f;
-    for (const t of this.tr) if (t.len > 0) t.origin = f;
+    for (const t of this.tr) if (t.len > 0) t.origin += d;
     this.lastTrig = -1e12;
   }
   grow(t, need) {
@@ -313,19 +354,24 @@ class LooperEngine extends AudioWorkletProcessor {
   startRec(i, f) {
     const t = this.tr[i];
     this.endOthers(i, f);
-    const q = this.quant || this.rOn, run = this.running(f);
+    const q = this.useQ(), run = this.running(f);
     let start;
     if (!run) {
       if (q) { const B = Math.round(this.barLen()); start = f + B; this.realign(start); this.countIn = start; }
       else { this.realign(f); start = f; }
     } else start = q ? this.qStart(f) : f;
-    const base = this.masterLen ? this.t0 + Math.floor((start - this.t0) / this.masterLen) * this.masterLen : start;
+    let base, autoEnd = 0;
+    if (this.fixedBars > 0) {
+      base = start;
+      autoEnd = this.masterLen ? start + this.masterLen : start + Math.round(this.fixedBars * this.barLen());
+    } else {
+      base = this.masterLen ? this.t0 + Math.floor((start - this.t0) / this.masterLen) * this.masterLen : start;
+    }
     Object.assign(t, this.blank(), { rev: t.rev });
-    t.buf = new Float32Array(this.sr * 8);
+    t.buf = new Float32Array(Math.max(this.sr * 8, autoEnd ? autoEnd - base + 1 : 0));
     t.origin = base;
-    t.recW = { start, end: Infinity, base, fin: false };
+    t.recW = { start, end: Infinity, base, fin: false, autoEnd };
     t.state = 'rec';
-    // backfill from input ring if start lies slightly in the past
     const lfNow = f - this.lat;
     for (let lf = start; lf < lfNow; lf++) {
       const g = lf + this.lat;
@@ -336,26 +382,33 @@ class LooperEngine extends AudioWorkletProcessor {
       }
     }
   }
-  finRec(i, f, action) {
+  finRec(i, f, action, auto) {
     const t = this.tr[i], w = t.recW;
     if (!w || w.fin) return;
-    if (f < w.start - 1) { this.clear(i); this.countIn = 0; return; }
-    const q = this.quant || this.rOn;
+    if (f < w.start - 1 && !auto) { this.clear(i, false); this.countIn = 0; return; }
     let E, len;
-    if (!this.masterLen) {
-      if (q) {
+    if (w.autoEnd) {
+      E = auto ? w.autoEnd : Math.min(w.autoEnd, this.qEnd(f, w.start));
+      if (!this.masterLen) {
+        len = E - w.start;
+        const bars = Math.max(1, Math.round(len / this.barLen()));
+        this.bpm = 240 * bars * this.sr / len;
+        this.masterLen = len; this.t0 = w.start;
+      } else len = this.masterLen;
+    } else if (!this.masterLen) {
+      if (this.useQ()) {
         E = this.qEnd(f, w.start); len = E - w.start;
         const bars = Math.max(1, Math.round(len / this.barLen()));
         this.bpm = 240 * bars * this.sr / len;
       } else {
         E = f; len = E - w.start;
-        if (len < this.sr * 0.25) { this.clear(i); return; }
+        if (len < this.sr * 0.25) { this.clear(i, false); return; }
         this.bpm = this.deriveBpm(len);
       }
       this.masterLen = len; this.t0 = w.start; t.origin = w.start; w.base = w.start;
     } else {
-      E = q ? this.qEnd(f, w.start) : f;
-      if (E <= w.start) { this.clear(i); return; }
+      E = this.useQ() ? this.qEnd(f, w.start) : f;
+      if (E <= w.start) { this.clear(i, false); return; }
       len = Math.max(1, Math.ceil((E - w.base - this.sr * 0.08) / this.masterLen)) * this.masterLen;
       if (E > w.base + len) E = w.base + len;
     }
@@ -400,14 +453,35 @@ class LooperEngine extends AudioWorkletProcessor {
       case 'play': t.playing = false; t.state = 'stop'; break;
     }
   }
-  clear(i) {
-    const rev = this.tr[i].rev;
+  clear(i, keep) {
+    const t = this.tr[i];
+    if (keep && t.len > 0 && t.state !== 'rec') {
+      if (t.dub && t.dubOn) { for (let k = 0; k < t.len; k++) t.buf[k] += t.dub[k]; }
+      this.trash.push({ g: this.group, i, buf: t.buf, len: t.len, rev: t.rev, off: mod(t.origin - this.t0, t.len), ms: this.masterLen, bpm: this.bpm });
+      while (this.trash.length > 10) this.trash.shift();
+    }
+    const rev = t.rev;
     this.tr[i] = this.blank(); this.tr[i].rev = rev;
-    if (this.tr.every(t => t.state === 'empty')) { this.masterLen = 0; this.countIn = 0; }
+    if (this.tr.every(x => x.state === 'empty')) { this.masterLen = 0; this.countIn = 0; }
+  }
+  restore() {
+    if (!this.trash.length) return 0;
+    const g = this.trash[this.trash.length - 1].g;
+    let n = 0;
+    for (let k = this.trash.length - 1; k >= 0; k--) {
+      const e = this.trash[k]; if (e.g !== g) break;
+      this.trash.splice(k, 1);
+      if (this.tr[e.i].state !== 'empty') continue;
+      if (!this.masterLen) { this.masterLen = e.ms; this.bpm = e.bpm; }
+      else if (this.masterLen !== e.ms && e.len % this.masterLen) continue;
+      Object.assign(this.tr[e.i], this.blank(), { buf: e.buf, len: e.len, rev: e.rev, origin: this.t0 + e.off, state: 'stop' });
+      n++;
+    }
+    return n;
   }
   undo(i, f) {
     const t = this.tr[i];
-    if (t.state === 'rec') { this.clear(i); return; }
+    if (t.state === 'rec') { this.clear(i, false); return; }
     if (!t.dub) return;
     if (t.state === 'dub') { this.endDub(t, f); t.dubOn = false; return; }
     t.dubOn = !t.dubOn;
@@ -417,8 +491,9 @@ class LooperEngine extends AudioWorkletProcessor {
     switch (m.cmd) {
       case 'main': this.mainPress(i, f); break;
       case 'stop': this.stopPress(i, f); break;
-      case 'clear': this.clear(i); break;
-      case 'clearAll': for (let k = 0; k < NT; k++) this.clear(k); break;
+      case 'clear': this.group++; this.clear(i, true); break;
+      case 'clearAll': this.group++; for (let k = 0; k < NT; k++) this.clear(k, true); break;
+      case 'restore': { const n = this.restore(); this.port.postMessage({ type: 'restored', n }); break; }
       case 'undo': this.undo(i, f); break;
       case 'rev': this.tr[i].rev = !!m.v; break;
       case 'allStart':
@@ -438,17 +513,26 @@ class LooperEngine extends AudioWorkletProcessor {
         } else if (m.k === 'lat') this.lat = Math.max(0, Math.round(m.v));
         else if (m.k === 'quant') this.quant = !!m.v;
         else if (m.k === 'recEnd') this.recEnd = m.v;
+        else if (m.k === 'fixedBars') this.fixedBars = Math.max(0, m.v | 0);
+        else if (m.k === 'click') this.click = m.v;
         break;
+      case 'load': {
+        for (let k = 0; k < NT; k++) this.clear(k, false);
+        this.masterLen = m.masterLen; this.bpm = m.bpm; this.t0 = f;
+        for (const s of m.tracks) Object.assign(this.tr[s.i], this.blank(), { buf: s.data, len: s.len, rev: !!s.rev, origin: f + s.off, state: 'stop' });
+        if (this.tr.every(x => x.state === 'empty')) this.masterLen = 0;
+        break;
+      }
       case 'export': {
         const out = [], tf = [];
         this.tr.forEach((t, k) => {
-          if (!t.len) return;
+          if (!t.len || t.state === 'rec') return;
           const d = new Float32Array(t.len);
           for (let n = 0; n < t.len; n++) d[n] = t.buf[n] + (t.dub && t.dubOn ? t.dub[n] : 0);
-          out.push({ i: k, len: t.len, origin: t.origin, rev: t.rev, playing: t.playing, data: d });
+          out.push({ i: k, len: t.len, origin: t.origin, off: mod(t.origin - this.t0, t.len), rev: t.rev, playing: t.playing, data: d });
           tf.push(d.buffer);
         });
-        this.port.postMessage({ type: 'export', req: m.req, sr: this.sr, t0: this.t0, masterLen: this.masterLen, tracks: out }, tf);
+        this.port.postMessage({ type: 'export', req: m.req, sr: this.sr, t0: this.t0, masterLen: this.masterLen, bpm: this.bpm, tracks: out }, tf);
         break;
       }
     }
@@ -471,42 +555,52 @@ class LooperEngine extends AudioWorkletProcessor {
     return d;
   }
   post(f) {
-    const ms = this.masterLen, out = [];
+    const ms = this.masterLen, out = [], B = this.barLen();
     for (const t of this.tr) {
-      let mode = t.state, pos = -1, el = 0, mult = 0;
-      if (mode === 'rec' && t.recW) {
-        if (f < t.recW.start) mode = 'recWait';
+      let mode = t.state, pos = -1, el = 0, mult = 0, rb = 0, rt = 0, wait = 0;
+      const w = t.recW;
+      if (mode === 'rec' && w) {
+        if (f < w.start) { mode = 'recWait'; wait = Math.ceil((w.start - f) / (B / 4)); }
         else {
-          const e = f - t.recW.base; el = (f - t.recW.start) / this.sr;
-          if (t.recW.fin) { pos = Math.min(1, mod(e, t.len) / t.len); mult = Math.round(t.len / ms); }
+          const e = f - w.base; el = (f - w.start) / this.sr;
+          rb = Math.floor((f - w.start) / B) + 1;
+          const end = w.fin ? w.end : w.autoEnd;
+          if (end) rt = Math.max(1, Math.round((end - w.start) / B));
+          if (w.fin) { pos = Math.min(1, mod(e, t.len) / t.len); mult = Math.round(t.len / ms); }
+          else if (w.autoEnd) { pos = Math.min(1, (f - w.start) / (w.autoEnd - w.start)); mult = 1; }
           else if (ms) { pos = (e % ms) / ms; mult = Math.max(1, Math.ceil(e / ms)); }
+          if (rt) rb = Math.min(rb, rt);
         }
       } else if (t.len > 0) {
         mult = Math.round(t.len / ms);
         if (t.playing && f >= t.playFrom) { pos = mod(f - t.origin, t.len) / t.len; if (t.rev) pos = 1 - pos; }
         else if (t.playing) pos = 0;
       }
-      out.push({ mode, pos, el, mult, peak: t.peak, dub: !!t.dub, dubOn: t.dubOn, rev: t.rev, fin: !!(t.recW && t.recW.fin) });
+      out.push({ mode, pos, el, mult, rb, rt, wait, peak: t.peak, dub: !!t.dub, dubOn: t.dubOn, rev: t.rev, fin: !!(w && w.fin) });
       t.peak = 0;
     }
     this.port.postMessage({ type: 'status', f, t0: this.t0, bpm: this.bpm, ms, sr: this.sr, running: this.running(f),
-      countIn: f < this.countIn, rOn: this.rOn, inPeak: this.inPeak, tracks: out });
+      countIn: f < this.countIn, rOn: this.rOn, inPeak: this.inPeak, trash: this.trash.length, tracks: out });
     this.inPeak = 0;
   }
   process(inputs, outputs) {
     const f0 = currentFrame;
     while (this.q.length) this.handle(this.q.shift(), f0);
     const n = outputs[0][0].length;
+    for (let k = 0; k < NT; k++) {
+      const w = this.tr[k].recW;
+      if (w && !w.fin && w.autoEnd && f0 >= w.autoEnd - this.sr * 0.25) this.finRec(k, f0, 'main', true);
+    }
     for (const t of this.tr) if (t.next && f0 >= t.next.at) { t.state = t.next.state; t.next = null; }
 
-    // rhythm triggers for this block
     const trigs = [];
-    if (this.rOn || f0 < this.countIn) {
+    const clickOn = this.click === 'always' ? this.running(f0) : this.click === 'rec' ? this.recording() : false;
+    if (this.rOn || f0 < this.countIn || clickOn) {
       const step = this.sr * 15 / this.bpm;
       let idx = Math.ceil((f0 - this.t0) / step - 1e-9);
       let b = this.t0 + idx * step;
       while (b < f0 + n) {
-        if (b > this.lastTrig + step * 0.5 && (this.rOn || b < this.countIn)) { trigs.push(Math.max(0, Math.floor(b - f0)), mod(idx, 16)); this.lastTrig = b; }
+        if (b > this.lastTrig + step * 0.5) { trigs.push(Math.max(0, Math.floor(b - f0)), mod(idx, 16)); this.lastTrig = b; }
         idx++; b += step;
       }
     }
@@ -545,7 +639,6 @@ class LooperEngine extends AudioWorkletProcessor {
       while (ti < trigs.length && trigs[ti] <= s) { this.trig(trigs[ti + 1]); ti += 2; }
       const d = this.drum(); rL[s] = d; rR[s] = d;
     }
-    // writer cleanup + edge fades
     const lfEnd = f0 + n - 1 - lat;
     for (const t of this.tr) {
       const w = t.recW;
@@ -569,15 +662,25 @@ registerProcessor('looper-engine', LooperEngine);
 'use strict';
 const NT = 5, C = 2 * Math.PI * 46;
 const $ = s => document.querySelector(s);
-const S = { quant: false, recEnd: 'play', rOn: false, rPat: 0, bpm: 120, mon: false, fx: 'OFF', fxAmt: 0.5, latMs: 0, gain: 1, rlev: 0.6 };
-const TS = Array.from({ length: NT }, () => ({ vol: 0.9, pan: 0, flt: 0, dly: 0, rev: 0 }));
+const DEF_S = { recMode: 'fixed', fixedBars: 8, bpm: 100, click: 'rec', recEnd: 'play', rOn: false, rPat: 0, rlev: 0.6,
+  monMode: 'always', fx: 'OFF', fxAmt: 0.5, gain: 1, latMs: null };
+const DEF_T = () => ({ vol: 0.9, pan: 0, flt: 0, dly: 0, rev: 0, mute: false });
+let S = Object.assign({}, DEF_S), TS = Array.from({ length: NT }, DEF_T);
+try {
+  const saved = JSON.parse(localStorage.getItem('loop5-settings') || 'null');
+  if (saved) { Object.assign(S, saved.S || {}); (saved.TS || []).forEach((t, i) => { if (TS[i]) Object.assign(TS[i], t); }); }
+} catch (e) {}
+S.rOn = false; S.micMuted = false;
+function saveSettings() {
+  try { const { micMuted, rOn, ...keep } = S; localStorage.setItem('loop5-settings', JSON.stringify({ S: keep, TS })); } catch (e) {}
+}
 let ctx = null, node = null, micStream = null, micSrc = null, engineMode = '', micErr = '', micName = '';
-let inGain, fxIn, fxOut, monGain, master, dlyNode, dlyRet, revRet, rhyGain, ir = null;
+let inGain, micGate, fxIn, fxOut, monGain, master, dlyNode, rhyGain, ir = null;
 let fxNodes = [], fxSet = () => {}, fxDelay = null, fxOsc = null;
-let status = null, lastBpm = 0, wakeLock = null, curTrack = 0;
+let status = null, lastBpm = 0, wakeLock = null, curTrack = 0, clipUntil = 0, monOn = null;
 const T = [], cards = [];
 
-// ---------- small helpers ----------
+// ---------- helpers ----------
 let toastT;
 function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms); }
 const send = m => { if (node) node.port.postMessage(m); };
@@ -587,14 +690,14 @@ const tgt = (p, v) => { if (ctx) p.setTargetAtTime(v, ctx.currentTime, 0.02); };
 function tap(el, fn) { el.addEventListener('pointerdown', e => { if (e.button > 0) return; e.preventDefault(); fn(e); }); }
 function holdBtn(btn, ms, fn) {
   let tm = null; const cancel = () => { clearTimeout(tm); btn.classList.remove('holding'); };
-  btn.addEventListener('pointerdown', e => { e.preventDefault(); btn.classList.add('holding'); buzz(8);
+  btn.addEventListener('pointerdown', e => { e.preventDefault(); if (btn.disabled) return; btn.classList.add('holding'); buzz(8);
     tm = setTimeout(() => { btn.classList.remove('holding'); buzz([20, 40, 20]); fn(); }, ms); });
   ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btn.addEventListener(ev, cancel));
 }
 function seg(el, val, onPick) {
   const btns = [...el.querySelectorAll('button')];
   const show = v => btns.forEach(b => b.classList.toggle('on', b.dataset.v === String(v)));
-  btns.forEach(b => tap(b, () => { show(b.dataset.v); onPick(b.dataset.v); }));
+  btns.forEach(b => tap(b, () => { if (b.disabled) return; show(b.dataset.v); onPick(b.dataset.v); }));
   show(val); return show;
 }
 function slider(id, val, fmt, onInput) {
@@ -606,7 +709,53 @@ const pct = v => Math.round(v * 100) + '%';
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('dblclick', e => e.preventDefault());
 
-// ---------- engine loading (AudioWorklet, with compatible fallback) ----------
+// ---------- session storage (IndexedDB) ----------
+const DB = {
+  db: null,
+  open() { return new Promise((res, rej) => { const r = indexedDB.open('loop5', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(this.db = r.result); r.onerror = () => rej(r.error); }); },
+  async put(k, v) { if (!this.db) await this.open(); return new Promise((res, rej) => { const tx = this.db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); },
+  async get(k) { if (!this.db) await this.open(); return new Promise((res, rej) => { const r = this.db.transaction('kv').objectStore('kv').get(k); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }); },
+};
+let saveSig = '', saveTimer = null;
+function watchSave(s) {
+  const busy = s.tracks.some(t => t.mode === 'rec' || t.mode === 'recWait' || t.mode === 'dub');
+  const sig = s.tracks.map(t => (t.mode === 'empty' ? 'e' : 'n') + t.mult + (t.dub ? 1 : 0) + (t.dubOn ? 1 : 0) + (t.rev ? 1 : 0)).join('|') + s.ms;
+  if (busy || sig === saveSig) return;
+  saveSig = sig; clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => send({ cmd: 'export', req: 'save' }), 900);
+}
+async function storeSession(m) {
+  try {
+    await DB.put('session', { ver: 1, sr: m.sr, masterLen: m.masterLen, bpm: m.bpm,
+      tracks: m.tracks.map(t => ({ i: t.i, len: t.len, off: t.off, rev: t.rev, data: t.data })) });
+  } catch (e) { console.warn('save failed', e); }
+}
+function resample(data, from, to) {
+  if (from === to) return data;
+  const n = Math.round(data.length * to / from), out = new Float32Array(n), r = from / to;
+  for (let i = 0; i < n; i++) { const x = i * r, k = Math.floor(x), a = x - k; out[i] = (data[k] || 0) * (1 - a) + (data[k + 1] || 0) * a; }
+  return out;
+}
+async function loadSession() {
+  try {
+    const s = await DB.get('session');
+    if (!s || !s.tracks || !s.tracks.length) return 0;
+    const sr = ctx.sampleRate, k = sr / s.sr;
+    let ms = Math.round(s.masterLen * k);
+    const tracks = s.tracks.map(t => {
+      const mult = Math.max(1, Math.round(t.len / s.masterLen)), len = ms * mult;
+      let d = resample(t.data, s.sr, sr);
+      if (d.length !== len) { const x = new Float32Array(len); x.set(d.subarray(0, len)); d = x; }
+      return { i: t.i, len, off: Math.round(t.off * k) % len, rev: t.rev, data: d };
+    });
+    const bpm = s.bpm;
+    node.port.postMessage({ cmd: 'load', masterLen: ms, bpm, tracks }, tracks.map(t => t.data.buffer));
+    saveSig = '';
+    return tracks.length;
+  } catch (e) { console.warn('load failed', e); return 0; }
+}
+
+// ---------- engine loading ----------
 async function loadEngine() {
   const code = document.getElementById('engine-src').textContent;
   const forceCompat = /compat/.test(location.search);
@@ -620,10 +769,9 @@ async function loadEngine() {
           channelCount: 1, channelCountMode: 'explicit', channelInterpretation: 'speakers' });
         engineMode = '고성능(AudioWorklet)';
         return { node: n, input: n, out: k => [n, k] };
-      } catch (e) { /* try next */ }
+      } catch (e) { /* next */ }
     }
   }
-  // Fallback: run the same engine on a ScriptProcessorNode
   let frame = 0, Proc = null;
   const port = { onmessage: null, postMessage: m => proc.port.onmessage({ data: m }) };
   class AWP { constructor() { this.port = { onmessage: null, postMessage: m => { port.onmessage && port.onmessage({ data: m }); } }; } }
@@ -646,7 +794,7 @@ async function loadEngine() {
   return { node: { port }, input: inBus, out: k => [merges[k], 0], extraLat: 2 * BS / ctx.sampleRate };
 }
 
-// ---------- audio effects ----------
+// ---------- effects ----------
 function makeIR(sec, decay) {
   const len = Math.floor(ctx.sampleRate * sec), b = ctx.createBuffer(2, len, ctx.sampleRate);
   for (let c = 0; c < 2; c++) { const d = b.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay); }
@@ -691,7 +839,7 @@ function djFilter(f, v) {
 }
 function applyTrack(i) {
   const t = T[i], s = TS[i]; if (!t) return;
-  tgt(t.v.gain, s.vol); tgt(t.p.pan, s.pan); tgt(t.ds.gain, s.dly); tgt(t.rs.gain, s.rev); djFilter(t.f, s.flt);
+  tgt(t.v.gain, s.mute ? 0 : s.vol); tgt(t.p.pan, s.pan); tgt(t.ds.gain, s.dly); tgt(t.rs.gain, s.rev); djFilter(t.f, s.flt);
 }
 function beep(freq = 880) {
   if (!ctx) return;
@@ -702,11 +850,17 @@ function beep(freq = 880) {
   o2.frequency.value = freq * 1.5; g2.gain.setValueAtTime(0, t + 0.18); g2.gain.linearRampToValueAtTime(0.3, t + 0.19); g2.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
   o2.connect(g2).connect(master); o2.start(t + 0.18); o2.stop(t + 0.65);
 }
+function setMon(on) { if (monGain && on !== monOn) { monOn = on; tgt(monGain.gain, on ? 1 : 0); } }
+function setMicMuted(m) {
+  S.micMuted = m; if (micGate) tgt(micGate.gain, m ? 0 : 1);
+  const b = $('#mic'); b.classList.toggle('muted', m); $('#micico').textContent = m ? '🔇' : (micErr ? '⚠' : '🎤');
+  renderDiag();
+}
 
 // ---------- start ----------
 async function start(earphone) {
-  // things that need the tap gesture: run first, synchronously
-  S.mon = earphone; showMon(S.mon ? 1 : 0);
+  S.monMode = earphone ? (S.monMode === 'off' ? 'always' : S.monMode) : 'off';
+  showMon(S.monMode);
   const coarse = matchMedia('(pointer:coarse)').matches;
   if (coarse && document.documentElement.requestFullscreen && !document.fullscreenElement) {
     document.documentElement.requestFullscreen({ navigationUI: 'hide' })
@@ -718,16 +872,19 @@ async function start(earphone) {
   $('#loading').textContent = '오디오 준비 중…';
   const eng = await loadEngine();
   node = eng.node;
-  node.port.onmessage = e => { const m = e.data; if (m.type === 'status') onStatus(m); else if (m.type === 'export') onExport(m); };
+  node.port.onmessage = e => { const m = e.data;
+    if (m.type === 'status') onStatus(m);
+    else if (m.type === 'export') onExport(m);
+    else if (m.type === 'restored') { toast(m.n ? `트랙 ${m.n}개를 되살렸습니다` : '되살릴 수 없습니다'); } };
   ir = makeIR(2.6, 3);
   master = ctx.createGain(); master.gain.value = 1;
   const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -4; comp.ratio.value = 12; comp.attack.value = 0.003; comp.release.value = 0.15;
   master.connect(comp).connect(ctx.destination);
   const dlyBus = ctx.createGain(); dlyNode = ctx.createDelay(3); dlyNode.delayTime.value = 45 / S.bpm;
   const dfb = ctx.createGain(); dfb.gain.value = 0.38; const dlp = ctx.createBiquadFilter(); dlp.frequency.value = 4200;
-  dlyRet = ctx.createGain(); dlyRet.gain.value = 0.6;
+  const dlyRet = ctx.createGain(); dlyRet.gain.value = 0.6;
   dlyBus.connect(dlyNode); dlyNode.connect(dlp).connect(dfb).connect(dlyNode); dlyNode.connect(dlyRet).connect(master);
-  const revBus = ctx.createGain(), cv = ctx.createConvolver(); cv.buffer = ir; revRet = ctx.createGain(); revRet.gain.value = 0.7;
+  const revBus = ctx.createGain(), cv = ctx.createConvolver(); cv.buffer = ir; const revRet = ctx.createGain(); revRet.gain.value = 0.7;
   revBus.connect(cv).connect(revRet).connect(master);
   rhyGain = ctx.createGain(); rhyGain.gain.value = S.rlev; { const [n, k] = eng.out(5); n.connect(rhyGain, k, 0); } rhyGain.connect(master);
   for (let i = 0; i < NT; i++) {
@@ -738,28 +895,35 @@ async function start(earphone) {
     T[i] = { f, v, p, ds, rs }; applyTrack(i);
   }
   inGain = ctx.createGain(); inGain.gain.value = S.gain;
-  fxIn = ctx.createGain(); fxOut = ctx.createGain(); monGain = ctx.createGain(); monGain.gain.value = S.mon ? 1 : 0;
-  inGain.connect(fxIn); fxOut.connect(eng.input); fxOut.connect(monGain).connect(master);
+  micGate = ctx.createGain(); micGate.gain.value = 1;
+  fxIn = ctx.createGain(); fxOut = ctx.createGain(); monGain = ctx.createGain(); monGain.gain.value = 0; monOn = false;
+  inGain.connect(micGate).connect(fxIn); fxOut.connect(eng.input); fxOut.connect(monGain).connect(master);
   setInputFx(S.fx);
   S.extraLat = eng.extraLat || 0;
-  send({ cmd: 'set', k: 'quant', v: S.quant }); send({ cmd: 'set', k: 'recEnd', v: S.recEnd });
-  send({ cmd: 'set', k: 'bpm', v: S.bpm }); send({ cmd: 'rhythm', on: S.rOn, pat: S.rPat });
+  send({ cmd: 'set', k: 'recEnd', v: S.recEnd });
+  send({ cmd: 'set', k: 'fixedBars', v: S.recMode === 'fixed' ? S.fixedBars : 0 });
+  send({ cmd: 'set', k: 'click', v: S.click });
+  send({ cmd: 'set', k: 'bpm', v: S.bpm });
+  send({ cmd: 'rhythm', on: false, pat: S.rPat });
   ctx.onstatechange = checkCtx;
   try { await ctx.resume(); } catch (e) {}
+  const loaded = await loadSession();
   $('#power').classList.add('hidden');
   beep();
   await openMic();
   keepAwake();
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
   if (!ctx.setSinkId) $('#sr-out').style.display = 'none';
   window.LOOP5 = { ctx, master, get status() { return status; } };
-  setTimeout(() => toast(micErr ? '⚠ ' + micErr : '띵 소리가 들렸으면 준비 완료! 안 들리면 ⚙ 설정 → 소리 점검', 4500), 400);
+  let first = false; try { first = !localStorage.getItem('loop5-tut'); } catch (e) {}
+  if (first && !loaded) setTimeout(() => openTut(0), 500);
+  else setTimeout(() => toast(micErr ? '⚠ ' + micErr : loaded ? `지난번 루프 ${loaded}개를 불러왔습니다 · ▶ 전체 재생` : '띵 소리가 들렸으면 준비 완료!', 4000), 400);
 }
 async function openMic(id) {
   micErr = ''; micName = '';
   if (micStream) { micStream.getTracks().forEach(t => t.stop()); try { micSrc.disconnect(); } catch (e) {} micStream = null; }
   if (!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    micErr = '이 방식으로 연 파일에서는 브라우저가 마이크를 막았습니다 (보안 연결 아님)';
-    renderDiag(); return;
+    micErr = '이 방식으로 연 파일에서는 브라우저가 마이크를 막았습니다 — https 주소로 열어 주세요'; renderDiag(); return;
   }
   try {
     micStream = await navigator.mediaDevices.getUserMedia({ audio: {
@@ -768,10 +932,10 @@ async function openMic(id) {
     const tr = micStream.getAudioTracks()[0]; micName = tr ? tr.label : '';
     tr && tr.addEventListener('ended', () => { micErr = '마이크 연결이 끊겼습니다'; renderDiag(); });
     await listDevices();
-    setTimeout(autoLatency, 700);
+    if (S.latMs == null) setTimeout(autoLatency, 700); else setLat(S.latMs, true);
   } catch (e) {
     const localFile = /^(file|content):$/.test(location.protocol);
-    micErr = { NotAllowedError: localFile ? '파일로 직접 열면 Chrome이 마이크를 막습니다 — https 주소나 localhost로 열어야 합니다' : '마이크 권한이 거부됨 — 주소창의 사이트 설정에서 마이크를 허용하세요',
+    micErr = { NotAllowedError: localFile ? '파일로 직접 열면 Chrome이 마이크를 막습니다 — https 주소로 열어 주세요' : '마이크 권한이 거부됨 — 주소창 왼쪽 아이콘 → 권한에서 마이크 허용',
       NotFoundError: '마이크 장치를 찾지 못했습니다', NotReadableError: '다른 앱(통화·녹음 앱 등)이 마이크를 쓰고 있습니다',
       OverconstrainedError: '선택한 마이크를 열 수 없습니다' }[e.name] || ('마이크 오류: ' + e.name);
   }
@@ -793,23 +957,16 @@ function autoLatency() {
   if (!ctx) return;
   let inLat = 0.01;
   try { const s = micStream && micStream.getAudioTracks()[0].getSettings(); if (s && typeof s.latency === 'number') inLat = s.latency; } catch (e) {}
-  setLat(Math.round(((ctx.baseLatency || 0) + (ctx.outputLatency || 0) + inLat + (S.extraLat || 0)) * 1000));
+  setLat(Math.round(((ctx.baseLatency || 0) + (ctx.outputLatency || 0) + inLat + (S.extraLat || 0)) * 1000), false);
 }
-function setLat(ms) { S.latMs = ms; setLatUI(ms); if (ctx) send({ cmd: 'set', k: 'lat', v: ms / 1000 * ctx.sampleRate }); }
-async function keepAwake() {
-  try { if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); } } catch (e) {}
-}
-function checkCtx() {
-  if (!ctx) return;
-  $('#resume').classList.toggle('hidden', ctx.state === 'running');
-  renderDiag();
-}
+function setLat(ms, manual) { if (manual) { S.latMs = ms; saveSettings(); } setLatUI(ms); if (ctx) send({ cmd: 'set', k: 'lat', v: ms / 1000 * ctx.sampleRate }); }
+async function keepAwake() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {} }
+function checkCtx() { if (!ctx) return; $('#resume').classList.toggle('hidden', ctx.state === 'running'); renderDiag(); }
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && ctx) { ctx.resume().catch(() => {}); keepAwake(); setTimeout(checkCtx, 300); }
 });
 tap($('#resume-btn'), async () => { try { await ctx.resume(); } catch (e) {} checkCtx(); beep(); });
 
-// ---------- diagnostics ----------
 function renderDiag() {
   const ok = s => `<span class="ok">✔ ${s}</span>`, bad = s => `<span class="bad">✘ ${s}</span>`, mid = s => `<span class="mid">● ${s}</span>`;
   const lines = [];
@@ -817,39 +974,52 @@ function renderDiag() {
   else {
     lines.push('오디오 엔진: ' + ok(engineMode));
     lines.push('소리 출력: ' + (ctx.state === 'running' ? ok('동작 중') : bad('멈춤 — 화면을 한 번 눌러 다시 켜기')) + ` <span class="note">(지연 ${Math.round(((ctx.baseLatency || 0) + (ctx.outputLatency || 0)) * 1000)}ms)</span>`);
-    lines.push('마이크: ' + (micErr ? bad(micErr) : micStream ? ok(micName || '연결됨') : mid('연결 안 됨')));
-    lines.push('내 소리 듣기: ' + (S.mon ? ok('켜짐') : mid('꺼짐 — 녹음하는 동안 내 소리는 안 들립니다(녹음은 됨)')));
+    lines.push('마이크: ' + (micErr ? bad(micErr) : S.micMuted ? mid('꺼 둠 (위쪽 🔇 버튼으로 켜기)') : micStream ? ok(micName || '연결됨') : mid('연결 안 됨')));
+    lines.push('내 소리 듣기: ' + ({ always: ok('항상'), rec: ok('녹음할 때만'), off: mid('꺼짐 — 녹음은 되지만 내 소리는 안 들립니다') })[S.monMode]);
   }
   $('#diag').innerHTML = lines.join('<br>');
-  const m = $('#mic'); m.classList.toggle('bad', !!micErr || (ctx && !micStream)); $('#micico').textContent = micErr ? '⚠' : '🎤';
+  const m = $('#mic'); m.classList.toggle('bad', !!micErr || (ctx && !micStream)); if (!S.micMuted) $('#micico').textContent = micErr ? '⚠' : '🎤';
 }
 
 // ---------- tracks UI ----------
-const ST = { empty: '비어 있음', recWait: '카운트…', rec: '녹음 중', dub: '겹쳐녹음 중', play: '재생 중', stop: '정지' };
+const ST = { empty: '비어 있음', recWait: '대기…', rec: '녹음 중', dub: '겹쳐녹음 중', play: '재생 중', stop: '정지' };
 for (let i = 0; i < NT; i++) {
   const el = document.createElement('div'); el.className = 'card'; el.dataset.state = 'empty';
   el.innerHTML = `<div class="chead"><span class="num">${i + 1}</span><span class="st">비어 있음</span><span class="mult"></span><button class="more b-more" aria-label="트랙 ${i + 1} 설정">⋯</button></div>
   <div class="ringwrap"><div class="ringbox"><svg class="ring" viewBox="0 0 100 100"><circle class="rbg" cx="50" cy="50" r="46"/><circle class="rfg" cx="50" cy="50" r="46"/></svg>
     <button class="mainbtn"><span class="a">● 녹음</span><span class="b"></span></button></div></div>
   <button class="stopbtn" disabled>■ 정지</button>
-  <div class="row"><button class="sb b-undo" disabled>↶ 취소</button><button class="sb hold b-clr" disabled>🗑 삭제</button></div>
-  <div class="vol"><span>볼륨</span><input type="range" min="0" max="1.25" step="0.01" value="0.9" aria-label="트랙 ${i + 1} 볼륨"><div class="tm"><i></i></div></div>`;
+  <div class="row"><button class="sb b-mute" disabled><i>🔇</i><small>음소거</small></button><button class="sb b-undo" disabled><i>↶</i><small>취소</small></button><button class="sb hold b-clr" disabled><i>🗑</i><small>삭제(꾹)</small></button></div>
+  <div class="vol"><span>볼륨</span><input type="range" min="0" max="1.25" step="0.01" value="${TS[i].vol}" aria-label="트랙 ${i + 1} 볼륨"><div class="tm"><i></i></div></div>`;
   $('#tracks').appendChild(el);
   const c = { el, st: el.querySelector('.st'), mult: el.querySelector('.mult'), rfg: el.querySelector('.rfg'), a: el.querySelector('.a'), b: el.querySelector('.b'),
-    stop: el.querySelector('.stopbtn'), undo: el.querySelector('.b-undo'), clr: el.querySelector('.b-clr'), vol: el.querySelector('.vol input'), tm: el.querySelector('.tm i') };
+    stop: el.querySelector('.stopbtn'), mute: el.querySelector('.b-mute'), undo: el.querySelector('.b-undo'), clr: el.querySelector('.b-clr'),
+    vol: el.querySelector('.vol input'), tm: el.querySelector('.tm i') };
   tap(el.querySelector('.mainbtn'), () => { if (!ctx) return; buzz(15); send({ cmd: 'main', t: i }); });
   tap(c.stop, () => { buzz(10); send({ cmd: 'stop', t: i }); });
-  tap(c.undo, () => { buzz(10); send({ cmd: 'undo', t: i }); });
-  holdBtn(c.clr, 600, () => { send({ cmd: 'clear', t: i }); toast(`트랙 ${i + 1}을 지웠습니다`); });
+  tap(c.undo, () => { if (c.undo.disabled) return; buzz(10); send({ cmd: 'undo', t: i }); });
+  tap(c.mute, () => { if (c.mute.disabled) return; buzz(10); setMute(i, !TS[i].mute); });
+  holdBtn(c.clr, 600, () => { send({ cmd: 'clear', t: i }); setMute(i, false); showUndo(`트랙 ${i + 1}을 지웠습니다`); });
   tap(el.querySelector('.b-more'), () => openTrack(i));
-  c.vol.addEventListener('input', () => { TS[i].vol = +c.vol.value; T[i] && tgt(T[i].v.gain, TS[i].vol); });
+  c.vol.addEventListener('input', () => { TS[i].vol = +c.vol.value; applyTrack(i); saveSettings(); });
   cards.push(c);
 }
+function setMute(i, m) { TS[i].mute = m; applyTrack(i); cards[i].el.classList.toggle('muted', m); cards[i].mute.classList.toggle('on', m); cards[i].mute.querySelector('small').textContent = m ? '소리 켜기' : '음소거'; saveSettings(); }
+TS.forEach((t, i) => { if (t.mute) setMute(i, true); });
+let undoT;
+function showUndo(msg) {
+  $('#undo-msg').textContent = msg; $('#undo-toast').classList.remove('hidden');
+  clearTimeout(undoT); undoT = setTimeout(() => $('#undo-toast').classList.add('hidden'), 7000);
+}
+tap($('#undo-btn'), () => { buzz(10); send({ cmd: 'restore' }); $('#undo-toast').classList.add('hidden'); });
 function btnText(t) {
   switch (t.mode) {
     case 'empty': return ['● 녹음', ''];
-    case 'recWait': return [String(t.count || ''), '누르면 취소'];
-    case 'rec': return t.fin ? ['마무리…', '박자 맞추는 중'] : ['녹음 끝', S.recEnd === 'dub' ? '→ 겹쳐녹음' : '→ 재생'];
+    case 'recWait': return [String(t.wait || ''), status && status.countIn ? '카운트 · 누르면 취소' : '다음 마디부터 녹음'];
+    case 'rec':
+      if (t.fin) return [t.rt ? `${t.rb} / ${t.rt}` : '마무리…', '마디 끝에서 마무리'];
+      if (t.rt) return [`${t.rb} / ${t.rt}`, '마디 · 자동 재생'];
+      return ['녹음 끝', S.recEnd === 'dub' ? '→ 겹쳐녹음' : '→ 재생'];
     case 'play': return ['겹쳐녹음', '위에 덧입히기'];
     case 'dub': return ['겹쳐녹음 끝', '→ 재생'];
     case 'stop': return ['▶ 재생', ''];
@@ -861,10 +1031,9 @@ function btnText(t) {
 function onStatus(s) {
   status = s;
   const barLen = s.sr * 240 / s.bpm, beat = s.running ? Math.floor(mod(s.f - s.t0, barLen) / (barLen / 4)) : -1;
-  let anyPlay = false, anyRec = -1, anyDub = -1, nonEmpty = 0, anyStop = false;
+  let anyPlay = false, recT = null, recI = -1, anyDub = -1, nonEmpty = 0, anyStop = false, busy = false;
   s.tracks.forEach((t, i) => {
     const c = cards[i];
-    if (t.mode === 'recWait') t.count = beat + 1;
     if (c.el.dataset.state !== t.mode) c.el.dataset.state = t.mode;
     c.st.textContent = ST[t.mode];
     const [a, b] = btnText(t); if (c.a.textContent !== a) c.a.textContent = a; if (c.b.textContent !== b) c.b.textContent = b;
@@ -877,26 +1046,42 @@ function onStatus(s) {
     c.rfg.style.strokeDasharray = da; c.rfg.style.strokeDashoffset = off;
     c.stop.disabled = t.mode === 'empty' || t.mode === 'stop';
     c.undo.disabled = !(t.dub || t.mode === 'rec' || t.mode === 'recWait');
-    c.undo.textContent = t.dub && !t.dubOn && t.mode !== 'dub' ? '↷ 복구' : '↶ 취소';
+    const redo = t.dub && !t.dubOn && t.mode !== 'dub';
+    c.undo.querySelector('i').textContent = redo ? '↷' : '↶'; c.undo.querySelector('small').textContent = redo ? '복구' : '취소';
     c.clr.disabled = t.mode === 'empty';
+    c.mute.disabled = t.mode === 'empty' && !TS[i].mute;
+    if (t.mode === 'empty' && TS[i].mute) setMute(i, false);
     c.tm.style.height = Math.min(100, t.peak * 110) + '%';
     if (t.mode === 'play' || t.mode === 'dub') anyPlay = true;
-    if (t.mode === 'rec' || t.mode === 'recWait') { anyPlay = true; anyRec = i; }
-    if (t.mode === 'dub') anyDub = i;
+    if (t.mode === 'rec' || t.mode === 'recWait') { anyPlay = true; recT = t; recI = i; busy = true; }
+    if (t.mode === 'dub') { anyDub = i; busy = true; }
     if (t.mode !== 'empty') nonEmpty++;
     if (t.mode === 'stop') anyStop = true;
   });
+  // monitor
+  setMon(S.monMode === 'always' || (S.monMode === 'rec' && busy));
   // top bar
-  $('#micbar').style.width = Math.min(100, s.inPeak * 110) + '%';
-  $('#bpm').textContent = s.ms ? s.bpm.toFixed(1) : Math.round(s.bpm);
-  if (!s.ms) S.bpm = Math.round(s.bpm * 10) / 10;
+  const now = performance.now();
+  if (s.inPeak > 0.97 && !S.micMuted) clipUntil = now + 1800;
+  const clip = now < clipUntil;
+  $('#mic').classList.toggle('clip', clip);
+  $('#micbar').style.width = (S.micMuted ? 0 : Math.min(100, s.inPeak * 110)) + '%';
+  $('#bpm').textContent = s.ms ? (Math.abs(s.bpm - Math.round(s.bpm)) < 0.05 ? Math.round(s.bpm) : s.bpm.toFixed(1)) : Math.round(s.bpm);
+  if (!s.ms) S.bpm = Math.round(s.bpm);
+  const loopBars = s.ms ? Math.max(1, Math.round(s.ms / barLen)) : (S.recMode === 'fixed' ? S.fixedBars : 0);
+  const curBar = s.running && s.ms ? Math.floor(mod(s.f - s.t0, s.ms) / barLen) + 1 : 0;
+  $('#barinfo').textContent = curBar ? `${curBar}/${loopBars}` : loopBars ? `${loopBars}마디` : '자유';
   document.querySelectorAll('#dots i').forEach((d, k) => d.classList.toggle('on', k === beat));
   S.rOn = s.rOn; $('#b-rhy').classList.toggle('on', s.rOn); showRhy(s.rOn ? 1 : 0);
   const all = $('#b-all');
   all.className = 'tb ' + (anyPlay ? 'halt' : 'go'); all.innerHTML = anyPlay ? '■<span class="lbl">전체 정지</span>' : '▶<span class="lbl">전체 재생</span>';
   all.disabled = !nonEmpty && !anyPlay;
-  $('#t-val').textContent = s.ms ? s.bpm.toFixed(1) : Math.round(s.bpm);
-  $('#t-lock').textContent = s.ms ? '🔒 루프가 녹음되어 있어 템포가 고정되었습니다. (모든 트랙을 지우면 바꿀 수 있어요)' : '';
+  // tempo sheet state
+  $('#t-val').textContent = $('#bpm').textContent;
+  const locked = !!s.ms;
+  $('#t-lock').textContent = locked ? `🔒 지금 루프: ${loopBars}마디 · ${$('#bpm').textContent} BPM · ${(s.ms / s.sr).toFixed(1)}초. 템포와 길이를 바꾸려면 모든 트랙을 지우세요.` : '';
+  ['#t-dn', '#t-up', '#t-tap'].forEach(id => $(id).disabled = locked);
+  document.querySelectorAll('#t-mode button,#t-bars button').forEach(b => b.disabled = locked);
   if (Math.abs(s.bpm - lastBpm) > 0.01) {
     lastBpm = s.bpm; const dt = 45 / s.bpm;
     if (dlyNode) dlyNode.delayTime.setTargetAtTime(dt, ctx.currentTime, 0.05);
@@ -904,14 +1089,22 @@ function onStatus(s) {
   }
   // guide line
   let g, warn = false;
-  if (micErr) { g = '⚠ ' + micErr + ' — ⚙ 설정에서 확인'; warn = true; }
-  else if (s.countIn) g = `준비… ${beat + 1} / 4  — 4박 뒤에 녹음이 시작됩니다`;
-  else if (anyRec >= 0) g = !s.ms ? `● ${anyRec + 1}번 녹음 중 — 다시 누르면 지금까지가 기본 루프가 됩니다` : `● ${anyRec + 1}번 녹음 중 — 다시 누르면 루프 길이에 맞춰 마무리됩니다`;
+  if (micErr) { g = '⚠ ' + micErr; warn = true; }
+  else if (clip) { g = '⚠ 마이크 소리가 너무 커서 찌그러집니다 — 마이크에서 조금 떨어지거나 ⚙ 설정 → 마이크 크기를 낮추세요'; warn = true; }
+  else if (S.micMuted && (busy || !nonEmpty)) { g = '🔇 마이크가 꺼져 있습니다 — 위쪽 🔇 버튼을 누르면 켜집니다'; warn = true; }
+  else if (recT && recT.mode === 'recWait') g = s.countIn ? `준비… ${recT.wait}박 뒤에 ${recI + 1}번 녹음이 시작됩니다` : `${recI + 1}번 — 다음 마디부터 녹음 시작…`;
+  else if (recT && recT.rt) g = !s.tracks.some((t, i) => i !== recI && t.mode !== 'empty')
+      ? `● ${recI + 1}번 녹음 중 ${recT.rb}/${recT.rt}마디 — 끝까지 연주하면 자동으로 재생됩니다 (일찍 끝내려면 버튼)`
+      : `● ${recI + 1}번 녹음 중 ${recT.rb}/${recT.rt}마디 — 루프 한 바퀴가 끝나면 자동으로 재생됩니다`;
+  else if (recT) g = !s.ms ? `● ${recI + 1}번 녹음 중 — 다시 누르면 지금까지가 기본 루프가 됩니다` : `● ${recI + 1}번 녹음 중 — 다시 누르면 루프 길이에 맞춰 마무리됩니다`;
   else if (anyDub >= 0) g = `◎ ${anyDub + 1}번 겹쳐녹음 중 — 다시 누르면 끝 (마음에 안 들면 ↶ 취소)`;
-  else if (!nonEmpty) g = '① 아무 트랙의 ● 녹음 버튼을 누르고 연주하세요. 끝나는 순간 한 번 더 누르면 루프 완성!';
-  else if (anyPlay) g = '빈 트랙에 새로 녹음하거나, 재생 중인 트랙을 눌러 위에 겹쳐 녹음하세요';
+  else if (!nonEmpty) g = S.recMode === 'fixed'
+      ? `① 1번 ● 녹음 → 4박 카운트 뒤 녹음, ${S.fixedBars}마디가 되면 자동으로 재생됩니다 (${S.bpm} BPM · 위 BPM 칸에서 변경)`
+      : '① 아무 트랙의 ● 녹음을 누르고 연주 → 끝나는 순간 한 번 더 누르면 루프 완성';
+  else if (anyPlay) g = '빈 트랙에 새로 녹음하거나, 재생 중인 트랙을 눌러 위에 겹쳐 녹음하세요. 🔇로 뺐다 넣었다 할 수 있어요';
   else if (anyStop) g = '모두 멈춤 — ▶ 전체 재생 또는 트랙 버튼으로 다시 재생';
   const gl = $('#guide'); if (gl.textContent !== g) gl.textContent = g; gl.classList.toggle('warn', warn);
+  watchSave(s);
 }
 
 // ---------- top bar & sheets ----------
@@ -928,33 +1121,49 @@ tap($('#b-all'), () => {
 tap($('#b-rhy'), () => { if (!ctx) return; buzz(10); S.rOn = !S.rOn; send({ cmd: 'rhythm', on: S.rOn, pat: S.rPat }); });
 tap($('#bpmbox'), () => openOv('#ov-tempo'));
 tap($('#b-set'), () => { renderDiag(); listDevices(); openOv('#ov-set'); });
-tap($('#mic'), () => { renderDiag(); listDevices(); openOv('#ov-set'); });
+tap($('#mic'), () => {
+  if (!ctx) return; buzz(10);
+  if (micErr) { renderDiag(); openOv('#ov-set'); return; }
+  setMicMuted(!S.micMuted); toast(S.micMuted ? '🔇 마이크를 껐습니다' : '🎤 마이크를 켰습니다');
+});
 
 // tempo sheet
+function modeNote() {
+  $('#t-modenote').textContent = S.recMode === 'fixed'
+    ? `첫 녹음: 4박 카운트 → ${S.fixedBars}마디 녹음 → 자동으로 재생. 다음 트랙은 다음 마디부터 시작해 루프 한 바퀴 뒤 자동으로 끝납니다.`
+    : '녹음 버튼을 누른 순간부터 다시 누른 순간까지가 루프가 됩니다. BPM은 길이를 보고 짐작합니다.';
+  $('#sr-bars').style.display = S.recMode === 'fixed' ? '' : 'none';
+}
+function pushFixed() { send({ cmd: 'set', k: 'fixedBars', v: S.recMode === 'fixed' ? S.fixedBars : 0 }); modeNote(); saveSettings(); }
+seg($('#t-mode'), S.recMode, v => { S.recMode = v; pushFixed(); });
+seg($('#t-bars'), S.fixedBars, v => { S.fixedBars = +v; pushFixed(); });
+modeNote();
 function setBpm(v) {
   if (status && status.ms) { toast('루프가 있는 동안 템포는 고정됩니다'); return; }
   S.bpm = Math.min(240, Math.max(40, Math.round(v))); $('#t-val').textContent = S.bpm; $('#bpm').textContent = S.bpm;
-  send({ cmd: 'set', k: 'bpm', v: S.bpm });
+  send({ cmd: 'set', k: 'bpm', v: S.bpm }); saveSettings();
 }
 tap($('#t-dn'), () => setBpm(S.bpm - 1));
 tap($('#t-up'), () => setBpm(S.bpm + 1));
 let taps = [];
-tap($('#t-tap'), () => { buzz(8); const now = performance.now(); taps = taps.filter(t => now - t < 2500); taps.push(now);
+tap($('#t-tap'), () => { if ($('#t-tap').disabled) return; buzz(8); const now = performance.now(); taps = taps.filter(t => now - t < 2500); taps.push(now);
   if (taps.length >= 2) setBpm(60000 / ((taps[taps.length - 1] - taps[0]) / (taps.length - 1))); });
+seg($('#t-click'), S.click, v => { S.click = v; send({ cmd: 'set', k: 'click', v }); saveSettings(); });
 const showRhy = seg($('#t-rhy'), 0, v => { S.rOn = v === '1'; send({ cmd: 'rhythm', on: S.rOn, pat: S.rPat }); });
-$('#t-pat').addEventListener('change', e => { S.rPat = +e.target.value; send({ cmd: 'rhythm', on: S.rOn, pat: S.rPat }); });
-slider('#t-rlev', S.rlev, pct, v => { S.rlev = v; rhyGain && tgt(rhyGain.gain, v); });
-seg($('#t-q'), 0, v => { S.quant = v === '1'; send({ cmd: 'set', k: 'quant', v: S.quant }); });
+$('#t-pat').value = S.rPat;
+$('#t-pat').addEventListener('change', e => { S.rPat = +e.target.value; send({ cmd: 'rhythm', on: S.rOn, pat: S.rPat }); saveSettings(); });
+slider('#t-rlev', S.rlev, pct, v => { S.rlev = v; rhyGain && tgt(rhyGain.gain, v); saveSettings(); });
+$('#bpm').textContent = S.bpm; $('#t-val').textContent = S.bpm; $('#barinfo').textContent = S.recMode === 'fixed' ? S.fixedBars + '마디' : '자유';
 
 // track sheet
 const panTxt = v => Math.abs(v) < 0.03 ? '가운데' : (v < 0 ? '왼 ' : '오 ') + Math.round(Math.abs(v) * 100);
 const fltTxt = v => Math.abs(v) < 0.04 ? '원음' : (v < 0 ? '먹먹 ' : '가볍 ') + pct(Math.abs(v));
 const trUI = {
-  vol: slider('#tr-vol', 0.9, pct, v => { TS[curTrack].vol = v; cards[curTrack].vol.value = v; applyTrack(curTrack); }),
-  pan: slider('#tr-pan', 0, panTxt, v => { TS[curTrack].pan = v; applyTrack(curTrack); }),
-  flt: slider('#tr-flt', 0, fltTxt, v => { TS[curTrack].flt = v; applyTrack(curTrack); }),
-  dly: slider('#tr-dly', 0, pct, v => { TS[curTrack].dly = v; applyTrack(curTrack); }),
-  rev: slider('#tr-rev', 0, pct, v => { TS[curTrack].rev = v; applyTrack(curTrack); }),
+  vol: slider('#tr-vol', 0.9, pct, v => { TS[curTrack].vol = v; cards[curTrack].vol.value = v; applyTrack(curTrack); saveSettings(); }),
+  pan: slider('#tr-pan', 0, panTxt, v => { TS[curTrack].pan = v; applyTrack(curTrack); saveSettings(); }),
+  flt: slider('#tr-flt', 0, fltTxt, v => { TS[curTrack].flt = v; applyTrack(curTrack); saveSettings(); }),
+  dly: slider('#tr-dly', 0, pct, v => { TS[curTrack].dly = v; applyTrack(curTrack); saveSettings(); }),
+  rev: slider('#tr-rev', 0, pct, v => { TS[curTrack].rev = v; applyTrack(curTrack); saveSettings(); }),
 };
 const showRev = seg($('#tr-reverse'), 0, v => send({ cmd: 'rev', t: curTrack, v: v === '1' }));
 function openTrack(i) {
@@ -965,26 +1174,52 @@ function openTrack(i) {
   openOv('#ov-track');
 }
 tap($('#tr-exp'), () => requestExport(curTrack));
-tap($('#tr-reset'), () => { TS[curTrack] = { vol: 0.9, pan: 0, flt: 0, dly: 0, rev: 0 }; cards[curTrack].vol.value = 0.9; applyTrack(curTrack); openTrack(curTrack); send({ cmd: 'rev', t: curTrack, v: false }); showRev(0); });
+tap($('#tr-reset'), () => { const m = TS[curTrack].mute; TS[curTrack] = Object.assign(DEF_T(), { mute: m }); cards[curTrack].vol.value = 0.9; applyTrack(curTrack); openTrack(curTrack); send({ cmd: 'rev', t: curTrack, v: false }); showRev(0); saveSettings(); });
 
 // settings sheet
 tap($('#s-beep'), async () => { if (!ctx) return; try { await ctx.resume(); } catch (e) {} beep(); checkCtx(); toast('띵 소리가 안 들리면: 폰 미디어 볼륨, 이어폰 연결, 다른 앱의 소리 사용 여부를 확인하세요', 4500); });
-const showMon = seg($('#s-mon'), 0, v => { S.mon = v === '1'; monGain && tgt(monGain.gain, S.mon ? 1 : 0); renderDiag(); if (S.mon) toast('스피커로 들으면 하울링이 생길 수 있어요. 이어폰일 때만 켜세요'); });
-slider('#s-gain', 1, v => v.toFixed(1) + 'x', v => { S.gain = v; inGain && tgt(inGain.gain, v); });
+const showMon = seg($('#s-mon'), S.monMode, v => { S.monMode = v; monOn = null; renderDiag(); saveSettings(); if (v === 'always') toast('스피커로 들으면 하울링이 생길 수 있어요. 이어폰일 때만 켜세요'); });
+slider('#s-gain', S.gain, v => v.toFixed(1) + 'x', v => { S.gain = v; inGain && tgt(inGain.gain, v); saveSettings(); });
 $('#s-in').addEventListener('change', e => ctx && openMic(e.target.value));
 $('#s-out').addEventListener('change', async e => { try { await ctx.setSinkId(e.target.value); beep(); setTimeout(autoLatency, 500); } catch (err) { toast('출력 장치를 바꾸지 못했습니다'); } });
-seg($('#s-recend'), 'play', v => { S.recEnd = v; send({ cmd: 'set', k: 'recEnd', v }); });
-$('#s-fx').addEventListener('change', e => setInputFx(e.target.value));
-slider('#s-fxamt', 0.5, pct, v => { S.fxAmt = v; fxSet(v); });
-const setLatUI = slider('#s-lat', 0, v => Math.round(v) + 'ms', v => setLat(Math.round(v)));
-tap($('#s-latauto'), autoLatency);
+seg($('#s-recend'), S.recEnd, v => { S.recEnd = v; send({ cmd: 'set', k: 'recEnd', v }); saveSettings(); });
+$('#s-fx').value = S.fx;
+$('#s-fx').addEventListener('change', e => { setInputFx(e.target.value); saveSettings(); });
+slider('#s-fxamt', S.fxAmt, pct, v => { S.fxAmt = v; fxSet(v); saveSettings(); });
+const setLatUI = slider('#s-lat', S.latMs || 0, v => Math.round(v) + 'ms', v => setLat(Math.round(v), true));
+tap($('#s-latauto'), () => { S.latMs = null; saveSettings(); autoLatency(); });
 tap($('#s-exp'), () => requestExport('mix'));
-holdBtn($('#s-clrall'), 800, () => { send({ cmd: 'clearAll' }); toast('모든 트랙을 지웠습니다'); });
+holdBtn($('#s-clrall'), 800, () => { send({ cmd: 'clearAll' }); TS.forEach((t, i) => t.mute && setMute(i, false)); $('#ov-set').classList.add('hidden'); showUndo('모든 트랙을 지웠습니다'); });
+tap($('#s-tut'), () => { $('#ov-set').classList.add('hidden'); openTut(0); });
 tap($('#s-fs'), () => {
   if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
   else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen({ navigationUI: 'hide' })
     .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {})).catch(() => toast('이 브라우저에서는 전체화면을 쓸 수 없습니다'));
 });
+
+// ---------- tutorial ----------
+const TUT = [
+  ['준비', '🎧 이어폰을 끼세요', '방금 "띵" 소리가 들렸다면 준비 완료입니다. 이어폰으로 내 목소리·악기 소리도 같이 들립니다.<br>소리가 안 들리면 ⚙ 설정 → <b>소리 점검</b>을 보세요.'],
+  ['기준 정하기', '빠르기와 길이를 먼저 정해요', '위쪽 <b>BPM 칸</b>을 누르면 빠르기(BPM)와 루프 길이(마디)를 고를 수 있습니다.<br>처음엔 <b>90~100 BPM · 4마디</b>가 쉽습니다. 기본값은 지금 <b>' + S.bpm + ' BPM · ' + S.fixedBars + '마디</b>입니다.'],
+  ['첫 루프', '1번 ● 녹음을 누르세요', '딸깍 <b>4박 카운트</b> 뒤에 녹음이 시작되고, 정한 마디가 끝나면 <b>자동으로 재생</b>됩니다. 끝 버튼은 누를 필요 없어요.<br>처음엔 손뼉이나 입으로 "둥 · 탁" 같은 단순한 박자부터 해 보세요.'],
+  ['쌓기', '2번 트랙에 하나 더', '1번이 재생되는 동안 2번 ● 녹음을 누르면 <b>다음 마디부터</b> 녹음되고, 루프 한 바퀴가 끝나면 자동으로 재생됩니다.<br>베이스, 화음, 멜로디 순으로 쌓으면 곡이 됩니다.'],
+  ['고치기', '겹쳐녹음과 취소', '재생 중인 트랙을 누르면 그 위에 <b>겹쳐녹음</b>, 다시 누르면 끝납니다.<br>마음에 안 들면 <b>↶ 취소</b>로 마지막 겹쳐녹음만 지울 수 있어요. 트랙 전체는 🗑 삭제(꾹), 지운 직후 되살리기도 됩니다.'],
+  ['연주하기', '🔇 음소거로 편곡', '<b>🔇</b>는 박자를 유지한 채 그 트랙 소리만 뺐다 넣었다 합니다. 공연할 때 "드럼 빼고 → 다시 넣기"에 씁니다.<br>녹음은 이 폰에 <b>자동 저장</b>되어 다시 열면 그대로 불러옵니다.'],
+];
+let tutI = 0;
+function openTut(i) {
+  tutI = i; const [n, h, p] = TUT[i];
+  $('#tut').innerHTML = `<div class="stepn">${i + 1} / ${TUT.length} · ${n}</div><div class="big">${h}</div><p>${p}</p>
+    <div class="nav"><button class="btn" id="tut-prev" ${i ? '' : 'disabled'}>← 이전</button>${i < TUT.length - 1 ? '<button class="btn prim" id="tut-next">다음 →</button>' : '<button class="btn prim" id="tut-done">시작하기</button>'}</div>
+    <div class="pips">${TUT.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div>
+    <p class="note" style="text-align:center;margin-top:10px"><a href="#" id="tut-skip" style="color:var(--dim)">건너뛰기</a> · 나중에 ⚙ 설정에서 다시 볼 수 있어요</p>`;
+  openOv('#ov-tut');
+  const done = () => { try { localStorage.setItem('loop5-tut', '1'); } catch (e) {} $('#ov-tut').classList.add('hidden'); };
+  $('#tut-prev').onclick = () => openTut(tutI - 1);
+  if ($('#tut-next')) $('#tut-next').onclick = () => openTut(tutI + 1);
+  if ($('#tut-done')) $('#tut-done').onclick = done;
+  $('#tut-skip').onclick = e => { e.preventDefault(); done(); };
+}
 
 // power screen
 tap($('#go-ear'), () => start(true));
@@ -1017,12 +1252,14 @@ function wavBlob(chs, sr) {
 function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 8000); }
 const gcd = (a, b) => b ? gcd(b, a % b) : a;
 function onExport(m) {
+  if (m.req === 'save') { storeSession(m); return; }
   if (!m.tracks.length) { toast('녹음된 트랙이 없습니다'); return; }
   if (m.req !== 'mix') {
     const t = m.tracks.find(x => x.i === +m.req); if (!t) { toast('빈 트랙입니다'); return; }
     download(wavBlob([t.rev ? t.data.slice().reverse() : t.data], m.sr), `loop5-track${t.i + 1}.wav`); toast('저장했습니다 (다운로드 폴더)'); return;
   }
-  const playing = m.tracks.filter(t => t.playing), use = playing.length ? playing : m.tracks;
+  const playing = m.tracks.filter(t => t.playing && !TS[t.i].mute), use = playing.length ? playing : m.tracks.filter(t => !TS[t.i].mute);
+  if (!use.length) { toast('들리는 트랙이 없습니다'); return; }
   const mults = use.map(t => Math.round(t.len / m.masterLen));
   let L = mults.reduce((a, b) => a * b / gcd(a, b), 1); if (L > 16) L = Math.max(...mults);
   const N = L * m.masterLen, Lc = new Float32Array(N), Rc = new Float32Array(N);
